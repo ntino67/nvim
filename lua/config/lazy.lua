@@ -5,19 +5,22 @@ local api = vim.api
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-  if vim.v.shell_error ~= 0 then
-    vim.api.nvim_echo({
-      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
-      { "\nPress any key to exit..." },
-    }, true, {})
-    vim.fn.getchar()
-    os.exit(1)
-  end
+	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+	if vim.v.shell_error ~= 0 then
+		api.nvim_echo({
+			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+			{ out, "WarningMsg" },
+			{ "\nPress any key to exit..." },
+		}, true, {})
+		vim.fn.getchar()
+		os.exit(1)
+	end
 end
-vim.opt.rtp:prepend(lazypath)
+o.rtp:prepend(lazypath)
+
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
 
 -- This is also a good place to setup other settings (vim.opt)
 
@@ -43,18 +46,20 @@ o.splitright = true
 o.splitbelow = true -- When on, splitting a window will put the new window below the current one
 o.termguicolors = true
 
-vim.keymap.set("n", "<leader>r.", vim.cmd.Ex)
+vim.keymap.set("n", "<leader>e", vim.cmd.Ex) -- Exit to netrw
+vim.keymap.set("n", "<leader>w", ":write<CR>") -- Write
+vim.keymap.set("n", "<leader>r", ":write<CR> :make<CR>") -- Run
 
 -- Moving visual selections up/down
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- Move selection down
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- Move selection up
 
 -- Center cursor after jumps
-vim.keymap.set("n", "J", "mzJ`z")       -- Join lines and keep cursor position
+vim.keymap.set("n", "J", "mzJ`z") -- Join lines and keep cursor position
 vim.keymap.set("n", "<C-d>", "<C-d>zz") -- Half-page down, centered
 vim.keymap.set("n", "<C-u>", "<C-u>zz") -- Half-page up, centered
-vim.keymap.set("n", "n", "nzzzv")       -- Next search result, centered
-vim.keymap.set("n", "N", "Nzzzv")       -- Previous search result, centered
+vim.keymap.set("n", "n", "nzzzv") -- Next search result, centered
+vim.keymap.set("n", "N", "Nzzzv") -- Previous search result, centered
 
 -- Format a paragraph and keep cursor position
 vim.keymap.set("n", "=ap", "ma=ap'a")
@@ -65,7 +70,7 @@ vim.keymap.set("x", "<leader>p", [["_dP]])
 
 -- System clipboard integration
 vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]]) -- Yank to system clipboard
-vim.keymap.set("n", "<leader>Y", [["+Y]])          -- Yank line to system clipboard
+vim.keymap.set("n", "<leader>Y", [["+Y]]) -- Yank line to system clipboard
 
 -- Disable Ex mode, tmux integration
 vim.keymap.set("n", "Q", "<nop>")
@@ -84,3 +89,6 @@ vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 
 -- Setup lazy.nvim
 require("lazy").setup("plugins")
+
+-- Setup mini.surround
+require("mini.surround").setup()

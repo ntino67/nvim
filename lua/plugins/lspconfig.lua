@@ -2,10 +2,17 @@ return {
 	"neovim/nvim-lspconfig",
 	event = { "BufReadPre", "BufNewFile" },
 	dependencies = {
-		"hrsh7th/cmp-nvim-lsp",
 		{ "folke/neodev.nvim", opts = {} },
 	},
 	config = function()
+		vim.diagnostic.config({
+			virtual_text = true,
+			signs = true,
+			underline = true,
+			update_in_insert = false,
+			severity_sort = true,
+		})
+
 		local nvim_lsp = require("lspconfig")
 		local mason_lspconfig = require("mason-lspconfig")
 
@@ -24,7 +31,7 @@ return {
 			end
 		end
 
-		local capabilities = require("cmp_nvim_lsp").default_capabilities()
+		local capabilities = require("blink.cmp").get_lsp_capabilities()
 		mason_lspconfig.setup({
 			handlers = {
 				function(server)

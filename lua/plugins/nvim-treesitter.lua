@@ -1,60 +1,35 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
-	event = { "BufReadPre", "BufNewFile" },
+	branch = "main",
 	build = ":TSUpdate",
-	dependencies = {
-		"windwp/nvim-ts-autotag",
-	},
 	config = function()
-		local treesitter = require("nvim-treesitter.configs")
+		require("nvim-treesitter").install({
+			"markdown",
+			"markdown_inline",
+			"javascript",
+			"bash",
+			"json",
+			"lua",
+			"go",
+			"c_sharp", -- add whatever else you use
+		})
 
-		treesitter.setup({
-			highlight = {
-				enable = true,
-				additional_vim_regex_highlighting = false,
-			},
-			indent = { enable = true },
-			autotag = {
-				enable = true,
-			},
-			ensure_installed = {
-				"json",
-				"javascript",
-				"typescript",
-				"tsx",
-				"yaml",
-				"html",
-				"css",
-				"markdown",
-				"markdown_inline",
-				"bash",
-				"lua",
-				"vim",
-				"dockerfile",
-				"gitignore",
-				"c",
-				"rust",
-				"python",
-			},
-			incremental_selection = {
-				enable = true,
-				keymaps = {
-					init_selection = "<C-space>",
-					node_incremental = "<C-space>",
-					scope_incremental = false,
-					node_decremental = "<bs>",
-				},
-			},
-			rainbow = {
-				enable = true,
-				disable = { "html" },
-				extended_mode = false,
-				max_file_lines = nil,
-			},
-			context_commentstring = {
-				enable = true,
-				enable_autocmd = false,
-			},
+		-- fenced-block tags -> parser names
+		vim.treesitter.language.register("javascript", "js")
+		vim.treesitter.language.register("bash", "sh")
+
+		-- the rewrite no longer auto-enables highlighting; core does it per buffer
+		vim.api.nvim_create_autocmd("FileType", {
+			callback = function(args)
+				local lang = vim.treesitter.language.get_lang(args.match)
+				if not lang then
+					return
+				end
+				local ok, available = pcall(vim.treesitter.language.add, lang)
+				if ok and available then
+					pcall(vim.treesitter.start, args.buf, lang)
+				end
+			end,
 		})
 	end,
 }

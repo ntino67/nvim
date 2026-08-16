@@ -1,52 +1,36 @@
 return {
-	"hrsh7th/nvim-cmp",
+	"saghen/blink.cmp",
 	event = "InsertEnter",
+	version = "1.*", -- use release tag, not main (main requires Rust toolchain for building)
 	dependencies = {
-		"hrsh7th/cmp-buffer", -- source for text in buffer
-		"hrsh7th/cmp-path", -- source for file system paths
 		{
 			"L3MON4D3/LuaSnip",
 			version = "v2.*",
-			-- install jsregexp (optional!).
 			build = "make install_jsregexp",
+			dependencies = { "rafamadriz/friendly-snippets" },
+			config = function()
+				require("luasnip.loaders.from_vscode").lazy_load()
+			end,
 		},
-		"rafamadriz/friendly-snippets",
-		"onsails/lspkind.nvim", -- vs-code like pictograms
 	},
-	config = function()
-		local cmp = require("cmp")
-		local lspkind = require("lspkind")
-		local luasnip = require("luasnip")
-
-		require("luasnip.loaders.from_vscode").lazy_load()
-
-		cmp.setup({
-			snippet = {
-				expand = function(args)
-					luasnip.lsp_expand(args.body)
-				end,
-			},
-			mapping = cmp.mapping.preset.insert({
-				["<C-d>"] = cmp.mapping.scroll_docs(-4),
-				["<C-f>"] = cmp.mapping.scroll_docs(4),
-				["<C-Space>"] = cmp.mapping.complete(),
-				["<C-q>"] = cmp.mapping.close(),
-				["<CR>"] = cmp.mapping.confirm({
-					behavior = cmp.ConfirmBehavior.Replace,
-					select = true,
-				}),
-			}),
-			sources = cmp.config.sources({
-				{ name = "nvim_lsp" },
-				{ name = "luasnip" },
-				{ name = "buffer" },
-				{ name = "path" },
-			}),
-		})
-
-		vim.cmd([[
-      set completeopt=menuone,noinsert,noselect
-      highlight! default link CmpItemKind CmpItemMenuDefault
-    ]])
-	end,
+	---@module 'blink.cmp'
+	---@type blink.cmp.Config
+	opts = {
+		keymap = {
+			preset = "default", -- C-Space to open, C-n/C-p to cycle, C-y to confirm
+			["<C-d>"] = { "scroll_documentation_up", "fallback" },
+			["<C-f>"] = { "scroll_documentation_down", "fallback" },
+			["<C-q>"] = { "hide", "fallback" },
+			["<CR>"] = { "accept", "fallback" },
+		},
+		snippets = { preset = "luasnip" },
+		sources = {
+			default = { "lsp", "buffer", "path" },
+		},
+		completion = {
+			list = { selection = { preselect = false, auto_insert = false } },
+		},
+		fuzzy = { implementation = "prefer_rust_with_warning" },
+	},
+	opts_extend = { "sources.default" },
 }

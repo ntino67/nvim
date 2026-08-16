@@ -49,7 +49,7 @@ o.termguicolors = true
 vim.keymap.set("n", "<leader>e", vim.cmd.Ex) -- Exit to netrw
 vim.keymap.set("n", "<leader>w", ":write<CR>") -- Write
 vim.keymap.set("n", "<leader>r", ":write<CR> :make<CR>") -- Run
-
+vim.keymap.set("i", "<C-c>", "<Esc>", { noremap = true })
 -- Moving visual selections up/down
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- Move selection down
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- Move selection up
